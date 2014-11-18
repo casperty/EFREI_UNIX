@@ -1,0 +1,152 @@
+TP UNIX 3
+NICOLAS Jerome
+RAVAUX Alexandre
+
+
+I- Pipes et scripts
+
+A- Pipes
+
+1-
+La commande tail affiche de base les 10 dernières lignes. 
+Ici on utilise -n qui permet d'afficher un certain nombre de lignes. 
+On affiche, ici, les dernières lignes à partir de la 20e ligne du fichier Xorg.0.log se trouvant dans le répertoire /var/log/
+
+La commande grep mouse va afficher les lignes où apparaît le terme "mouse" dans le résultat de la commande tail -n 20.
+
+La ligne wc -l va afficher le nombre de lignes du résultat des commandes précédentes.
+
+2- 
+Ici, on a les mêmes commandes, mais dans un ordre différent; donc exécution différente :
+
+Ainsi, grep mouse affiche les lignes où apparaît le terme "mouse" dans l'ensemble du fichier Xorg.0.log se trouvant dans le répertoire /var/log/.
+
+La commande tail -n 20 affichera, les dernières lignes à partir de la 20e ligne du résultat précédent.
+
+wc -l affiche donc le nombre de lignes de la 2e commande.
+
+
+3-
+Ici, la commande ne peut pas fonctionner, car elle ne peut pas faire un grep mouse sur le résultat de la commande wc (un chiffre)
+
+
+II- Script mystère
+
+1- 
+La première boucle if permet de contrôler le nombre de paramètres $#; s'il n'y a aucun paramètre, il affiche un message d'erreur et stoppe le processus.
+
+Dans le cas contraire, il continue le programme, et exécute une boucle for des fichiers mis en paramètres.
+Cette boucle teste si chaque fichier mis en paramètres existe. Si l'un des fichiers n'existe pas, il affiche un message d'erreur et stoppe le processus.  
+
+Le programme crée un fichier temporaire nommé "bidon". la boucle for teste les paramètres, un par un : si un fichier est plus vieux que le fichier temporaire, $TMP prend comme valeur le chemin du fichier.
+
+ls -l $TMP affiche le répertoire  du fichier le plus ancien ; et supprime le fichier temporaire par la commande rm -f 
+
+
+2-
+$ ./script.sh
+Il n'y a aucun parametre. On affiche "usage : ./script.sh fic1 fic2 … ficn" (en plus du message lié à l'erreur 1) et on arrête le script
+$ ./script.sh notes toto
+toto n'existe pas, on affiche "./script.sh : toto ?!" (en plus du message lié à l'erreur 1) et on arrête le script.
+$ ./script.sh *
+Il affiche le contenu du repertoire resultats qui est le répertoire le plus ancien.
+
+III - Script de jeu
+
+cmpt=0 # compteur
+valid=1 # variable de test
+chiffre=5 #il suffit de remplacer $chiffre par $RANDOM si on veut utiliser un chiffre aléatoire
+echo "Nombre cible choisi"
+while [ $valid -eq 1 ]
+do
+	echo "Entrer un nombre : "
+	read nb
+	if [ $nb -eq $chiffre ]
+	then
+		# incrementation (equivalent de cpt++ en C)
+		cmpt=`expr $cmpt+1`
+		valid=0
+		echo "Bravo, gagné en $cmpt coups"	
+	else
+		cmpt=`expr $cmpt+1`
+		if [ $nb -lt $chiffre ]
+		then
+			echo "Nombre cible plus grand"
+		else
+			# cas exclusif : si il n'est pas egal ni plus petit que le chiffre alors il est forcement plus grand
+			echo "Nombre cible plus petit"
+		fi
+	fi
+done
+
+Script utilitaires :
+
+a)
+#!/bin/sh
+if [ $# -ne 2 ]
+then
+ echo "usage : $0 <fichier> <machine cible>">&2
+ exit 1
+else
+	cp $1 /tmp/$1
+	sh ftp.sh open $2
+	sh ftp.sh put /tmp/$1
+	ftp.sh exit
+	rm -f /tmp/$1
+	
+fi
+
+b)
+
+if [ $# -ne 2 ]
+then
+ echo "usage : $0 <machine source> <fichier>">&2
+ exit 1
+else
+	sh ftp.sh open $1
+	sh ftp.sh get /tmp/$2
+	ftp.sh exit
+	
+fi
+
+c)
+
+d) 
+
+II - Shell bash 
+Configuration :
+a) alias ll=`ls -l`
+Dans le fichier .bash_profile ou le .bashrc selon le terminal (login ou interactif)
+Ceci dit l'idéal est de le mettre dans les deux, ainsi quelque soit le terminal, on a les mêmes alias
+b) si vous écrivez l'alias dans les fichiers de configuration .bash_profile et .bashrc, le nouvel alias est accessible partout
+Ceci dit il faut rafraîchir le terminal après avoir modifier les fichiers de config. Donc on relance le shell avec la commande sh ou bash.
+c) Il faut ecrire sh <script.sh> ou bien rendre exécutable le script puis faire ./script.sh
+
+Environnement :
+d) 
+echo $HOME; echo $PATH; echo $SHELL; echo $USER;
+Sinon la commande env affiche les variables d'environnement
+
+e) Ces variables représentent le prompt $
+
+f) 
+echo $PWD
+echo $OLDPWD
+
+g) Il initialise le PATH de l'utilisateur et charge le .bashrc et .bash_profile (selon le shell choisi)
+C'est selon la valeur PS1 et le terminal où on est.
+
+Exécution de commandes :
+
+h) 
+$ <script> [parametres] : chemin d'acces au script pas obligatoire, script obligatoirement exécutable
+$ source <script> ou ./<script> : idem
+$ sh <script> [parametres] : chemin d'acces au script obligatoire, script pas forcément rendu exécutable
+
+i) type grep
+le modifier ? l'utiliser dans un script ?
+
+j) help <commande> : la commande help affiche une explication de la commande unqiuement pour les commandes internes
+   type <commande> : si c'est une primitive du shell alors c'est une commande interne
+
+k) cd est une primitive du shell (il suffit de taper type cd)
